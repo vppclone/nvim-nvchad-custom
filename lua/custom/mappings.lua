@@ -45,6 +45,7 @@ M.general = {
     -- better indenting
     -- map("v", "<", "<gv")
     -- map("v", ">", ">gv")
+    -- map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
   },
   v = {
     [">"] = { ">gv", "indent" },

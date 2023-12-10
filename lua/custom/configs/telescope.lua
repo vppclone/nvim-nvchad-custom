@@ -1,5 +1,7 @@
 local actions = require "telescope.actions"
 local fb_actions = require("telescope").extensions.file_browser.actions
+local telescope = require("telescope")
+local default_config = require("plugins.configs.telescope")
 
 local options = {
   extensions = {
@@ -31,5 +33,5 @@ local options = {
   },
 }
 
-return options
+telescope.setup(default_config)
 

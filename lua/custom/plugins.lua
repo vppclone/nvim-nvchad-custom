@@ -7,7 +7,14 @@ local plugins = {
   {
     "neovim/nvim-lspconfig",
     opts = {
-      autoformat = true,
+      servers = {
+        tsserver = {
+          keys = {
+            { "<leader>co", "<cmd>TypescriptOrganizeImports<CR>", desc = "Organize Imports" },
+            { "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
+          },
+        },
+      },
     },
     dependencies = {
       -- format & linting
@@ -29,6 +36,9 @@ local plugins = {
     dependencies = {
       "nvim-telescope/telescope-file-browser.nvim",
     },
+    config = function()
+      require('custom.configs.telescope')
+    end
   },
 
   -- override plugin configs
