@@ -18,17 +18,42 @@ M.disabled = {
 
 M.general = {
   n = {
-    [";"] = { ":", "enter command mode", opts },
     ["r"] = { "<C-r>", "Redo", opts },
     ["<C-d>"] = { "*N", "Send current word to search", opts },
     -- windows
-    ["ss"] = { "<cmd> split <CR>", "Window left" },
-    ["sv"] = { "<cmd> vsplit <CR>", "Window left" },
-    ["sh"] = { "<C-w>h", "Window left" },
-    ["sl"] = { "<C-w>l", "Window right" },
-    ["sj"] = { "<C-w>j", "Window down" },
-    ["sk"] = { "<C-w>k", "Window up" },
-    -- tab
+    ["ss"] = { "<cmd> split <CR>", "Window left", opts },
+    ["sv"] = { "<cmd> vsplit <CR>", "Window left", opts },
+    ["sh"] = { "<C-w>h", "Window left", opts },
+    ["sl"] = { "<C-w>l", "Window right", opts },
+    ["sj"] = { "<C-w>j", "Window down", opts },
+    ["sk"] = { "<C-w>k", "Window up", opts },
+    -- move lines
+    ["<A-j>"] = { "<cmd>m .+1<cr>==", "Move down", opts },
+    ["<A-k>"] = { "<cmd>m .-2<cr>==", "Move up", opts },
+    -- map("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move down" })
+    -- map("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move up" })
+    -- map("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Move down" })
+    -- map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move up" })
+    -- Clear search with <esc>
+    -- map({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
+    -- map("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next search result" })
+    -- map("x", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next search result" })
+    -- map("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next search result" })
+    -- map("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev search result" })
+    -- map("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev search result" })
+    -- map("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev search result" })
+    -- better indenting
+    -- map("v", "<", "<gv")
+    -- map("v", ">", ">gv")
+  },
+  v = {
+    [">"] = { ">gv", "indent" },
+    ["/"] = { '"fy/\\V<C-R>f<CR>N', "Sync behavior with /", opts },
+  },
+}
+
+M.tab = {
+  n = {
     ["ta"] = { "<cmd> $tabnew<CR>", "Tab New", opts },
     ["tx"] = { "<cmd> tabclose<CR>", "Tab Exit", opts },
     ["to"] = { "<cmd> tabonly<CR>", "Tab Only", opts },
@@ -36,16 +61,16 @@ M.general = {
     ["tmn"] = { "<cmd> +tabmove<CR>", "Tab move next", opts },
     ["tn"] = { "<cmd> tabn<CR>", "Tab next", opts },
     ["tp"] = { "<cmd> tabp<CR>", "Tab prev", opts },
-    -- Buffer
+  },
+}
+
+M.buffer = {
+  n = {
     ["<leader>kw"] = {
       function()
         require("nvchad.tabufline").closeAllBufs()
       end,
     },
-  },
-  v = {
-    [">"] = { ">gv", "indent" },
-    ["/"] = { '"fy/\\V<C-R>f<CR>N', "Sync behavior with /", opts },
   },
 }
 
@@ -102,7 +127,7 @@ M.telescope = {
   },
 }
 
-M.window = {
+M.window_like = {
   n = {
     ["<C-c>"] = { "yy", "Copy not yank", opts },
     ["<C-x>"] = { "dd", "Cut not delete line", opts },
@@ -128,14 +153,14 @@ M.nvimtree = {
 M.UI = {
   n = {
     ["<leader>un"] = {
-      function ()
-        require("notify").dismiss({
+      function()
+        require("notify").dismiss {
           silent = true,
-          pending = true
-        })
+          pending = true,
+        }
       end,
-      desc = "Dismiss all Notifications"
-    }
-  }
+      desc = "Dismiss all Notifications",
+    },
+  },
 }
 return M
