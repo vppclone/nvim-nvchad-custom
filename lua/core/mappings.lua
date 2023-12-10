@@ -1,9 +1,50 @@
 -- n, v, i, t = mode names
 
 local M = {}
+local opts = {
+  nowait = true,
+  noremap = true,
+}
+
+M.buffer = {
+  n = {
+    ["<leader>kw"] = {
+      function()
+        require("nvchad.tabufline").closeAllBufs()
+      end,
+    },
+  },
+}
+
+M.tab = {
+  n = {
+    ["ta"] = { "<cmd> $tabnew<CR>", "Tab New", opts },
+    ["tx"] = { "<cmd> tabclose<CR>", "Tab Exit", opts },
+    ["to"] = { "<cmd> tabonly<CR>", "Tab Only", opts },
+    ["tmp"] = { "<cmd> -tabmove<CR>", "Tab move prev", opts },
+    ["tmn"] = { "<cmd> +tabmove<CR>", "Tab move next", opts },
+    ["tn"] = { "<cmd> tabn<CR>", "Tab next", opts },
+    ["tp"] = { "<cmd> tabp<CR>", "Tab prev", opts },
+  },
+}
+
+M.window = {
+  n = {
+    ["ss"] = { "<cmd> split <CR>", "Window left", opts },
+    ["sv"] = { "<cmd> vsplit <CR>", "Window left", opts },
+    ["sh"] = { "<C-w>h", "Window left", opts },
+    ["sl"] = { "<C-w>l", "Window right", opts },
+    ["sj"] = { "<C-w>j", "Window down", opts },
+    ["sk"] = { "<C-w>k", "Window up", opts },
+  }
+}
 
 M.general = {
   i = {
+    -- Move line
+    ["<A-j"] = { "<esc><cmd>m .+1<cr>==gi", "Move down", opts },
+    ["<A-k>"] = { "<esc><cmd>m .-2<cr>==gi", "Move up", opts },
+
     -- go to  beginning and end
     ["<C-b>"] = { "<ESC>^i", "Beginning of line" },
     ["<C-e>"] = { "<End>", "End of line" },
@@ -16,42 +57,21 @@ M.general = {
   },
 
   n = {
-    ["<Esc>"] = { "<cmd> noh <CR>", "Clear highlights" },
-    -- switch between windows
+    ["<esc>"] = { "<cmd>noh<cr><esc>", "Escape and clear hlsearch", opts },
     ["<C-h>"] = { "<C-w>h", "Window left" },
     ["<C-l>"] = { "<C-w>l", "Window right" },
     ["<C-j>"] = { "<C-w>j", "Window down" },
     ["<C-k>"] = { "<C-w>k", "Window up" },
-
-    -- save
     ["<C-s>"] = { "<cmd> w <CR>", "Save file" },
-
-    -- Copy all
-    ["<C-c>"] = { "<cmd> %y+ <CR>", "Copy whole file" },
-
-    -- line numbers
     ["<leader>n"] = { "<cmd> set nu! <CR>", "Toggle line number" },
     ["<leader>rn"] = { "<cmd> set rnu! <CR>", "Toggle relative number" },
-
-    -- Allow moving the cursor through wrapped lines with j, k, <Up> and <Down>
-    -- http://www.reddit.com/r/vim/comments/2k4cbr/problem_with_gj_and_gk/
-    -- empty mode is same as using <cmd> :map
-    -- also don't use g[j|k] when in operator pending mode, so it doesn't alter d, y or c behaviour
+    ["<A-j>"] = { "<cmd>m .+1<cr>==", "Move down", opts },
+    ["<A-k>"] = { "<cmd>m .-2<cr>==", "Move up", opts },
     ["j"] = { 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', "Move down", opts = { expr = true } },
     ["k"] = { 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', "Move up", opts = { expr = true } },
     ["<Up>"] = { 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', "Move up", opts = { expr = true } },
     ["<Down>"] = { 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', "Move down", opts = { expr = true } },
-
-    -- new buffer
-    ["<leader>b"] = { "<cmd> enew <CR>", "New buffer" },
     ["<leader>ch"] = { "<cmd> NvCheatsheet <CR>", "Mapping cheatsheet" },
-
-    ["<leader>fm"] = {
-      function()
-        vim.lsp.buf.format { async = true }
-      end,
-      "LSP formatting",
-    },
   },
 
   t = {
@@ -61,15 +81,15 @@ M.general = {
   v = {
     ["<Up>"] = { 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', "Move up", opts = { expr = true } },
     ["<Down>"] = { 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', "Move down", opts = { expr = true } },
-    ["<"] = { "<gv", "Indent line" },
-    [">"] = { ">gv", "Indent line" },
+    ["<"] = { "<gv", "Indent outward" },
+    [">"] = { ">gv", "Indent inward" },
+    ["<A-j>"] = { ":m '>+1<cr>gv=gv", "Move down", opts },
+    ["<A-k>"] = { ":m '<-2<cr>gv=gv", "Move up", opts },
   },
 
   x = {
     ["j"] = { 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', "Move down", opts = { expr = true } },
     ["k"] = { 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', "Move up", opts = { expr = true } },
-    -- Don't copy the replaced text after pasting in visual mode
-    -- https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text#Alternative_mapping_for_paste
     ["p"] = { 'p:let @+=@0<CR>:let @"=@0<CR>', "Dont copy replaced text", opts = { silent = true } },
   },
 }
@@ -130,6 +150,13 @@ M.lspconfig = {
   -- See `<cmd> :help vim.lsp.*` for documentation on any of the below functions
 
   n = {
+    ["<leader>cf"] = {
+      function()
+        vim.lsp.buf.format { async = true }
+      end,
+      "LSP formatting",
+    },
+
     ["gD"] = {
       function()
         vim.lsp.buf.declaration()
@@ -241,6 +268,29 @@ M.lspconfig = {
       end,
       "List workspace folders",
     },
+
+    ["<C-k>"] = {
+      function()
+        vim.diagnostic.goto_prev { float = { border = "rounded" } }
+      end,
+      "Goto prev",
+    },
+
+    ["<C-j>"] = {
+      function()
+        vim.diagnostic.goto_next { float = { border = "rounded" } }
+      end,
+      "Goto next",
+    },
+
+    ["<leader>cd"] = { vim.diagnostic.open_float, "Line Diagnostics", opts },
+
+    ["<leader>cr"] = {
+      function()
+        require("nvchad.renamer").open()
+      end,
+      "LSP rename",
+    },
   },
 
   v = {
@@ -257,11 +307,51 @@ M.nvimtree = {
   plugin = true,
 
   n = {
-    -- toggle
-    ["<C-n>"] = { "<cmd> NvimTreeToggle <CR>", "Toggle nvimtree" },
+    ["<leader>e"] = { "<cmd> NvimTreeToggle <CR>", "Focus nvimtree" },
+  },
+}
 
-    -- focus
-    ["<leader>e"] = { "<cmd> NvimTreeFocus <CR>", "Focus nvimtree" },
+M.UI = {
+  n = {
+    ["<leader>un"] = {
+      function()
+        require("notify").dismiss {
+          silent = true,
+          pending = true,
+        }
+      end,
+      desc = "Dismiss all Notifications",
+    },
+  },
+}
+
+M.search = {
+  n = {
+    ["n"] = { "'Nn'[v:searchforward].'zv'", "Next search result", opts = {
+      expr = true,
+    } },
+    ["N"] = { "'nN'[v:searchforward].'zv'", "Prev search result", opts = {
+      expr = true,
+    } },
+  },
+  v = {
+    ["/"] = { '"fy/\\V<C-R>f<CR>N', "Sync behavior with /", opts },
+  },
+  o = {
+    ["n"] = { "'Nn'[v:searchforward].'zv'", "Next search result", opts = {
+      expr = true,
+    } },
+    ["N"] = { "'nN'[v:searchforward].'zv'", "Prev search result", opts = {
+      expr = true,
+    } },
+  },
+  x = {
+    ["n"] = { "'Nn'[v:searchforward].'zv'", "Next search result", opts = {
+      expr = true,
+    } },
+    ["N"] = { "'nN'[v:searchforward].'zv'", "Prev search result", opts = {
+      expr = true,
+    } },
   },
 }
 
@@ -271,8 +361,10 @@ M.telescope = {
   n = {
     -- find
     ["<leader>ff"] = { "<cmd> Telescope find_files <CR>", "Find files" },
+    ["<C-p>"] = { "<cmd> Telescope find_files <CR>", "Find files" },
     ["<leader>fa"] = { "<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>", "Find all" },
     ["<leader>fw"] = { "<cmd> Telescope live_grep <CR>", "Live grep" },
+    ["<C-g>"] = { "<cmd> Telescope live_grep <CR>", "Live grep" },
     ["<leader>fb"] = { "<cmd> Telescope buffers <CR>", "Find buffers" },
     ["<leader>fh"] = { "<cmd> Telescope help_tags <CR>", "Help page" },
     ["<leader>fo"] = { "<cmd> Telescope oldfiles <CR>", "Find oldfiles" },
@@ -289,6 +381,29 @@ M.telescope = {
     ["<leader>th"] = { "<cmd> Telescope themes <CR>", "Nvchad themes" },
 
     ["<leader>ma"] = { "<cmd> Telescope marks <CR>", "telescope bookmarks" },
+
+    -- File browser
+    ["sf"] = {
+      function()
+        local telescope = require "telescope"
+
+        local function telescope_buffer_dir()
+          return vim.fn.expand "%:p:h"
+        end
+
+        telescope.extensions.file_browser.file_browser {
+          path = "%:p:h",
+          cwd = telescope_buffer_dir(),
+          respect_gitignore = false,
+          hidden = true,
+          groupted = false,
+          previewer = false,
+          initial_mode = "normal",
+          layout_config = { height = 40 },
+        }
+      end,
+      "Open file browser",
+    },
   },
 }
 
@@ -462,6 +577,24 @@ M.gitsigns = {
       end,
       "Toggle deleted",
     },
+  },
+}
+
+
+M.window_like = {
+  n = {
+    ["<C-c>"] = { "yy", "Copy not yank", opts },
+    ["<C-x>"] = { "dd", "Cut not delete line", opts },
+    ["<C-v>"] = { "p", "Paste but v?", opts },
+    ["<C-a>"] = { "gg<S-v>G", "Select all", opts },
+  },
+  i = {
+    ["<C-v>"] = { "<C-r>*", "Paste in insert (finally window can be useful)", opts },
+  },
+  v = {
+    ["<C-c>"] = { "y", "Copy not yank", opts },
+    ["<C-x>"] = { "d", "Cut not delete line", opts },
+    ["<C-v>"] = { "p", "Paste but v?", opts },
   },
 }
 

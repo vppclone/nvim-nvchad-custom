@@ -96,18 +96,16 @@ local default_plugins = {
       vim.api.nvim_create_autocmd({ "BufRead" }, {
         group = vim.api.nvim_create_augroup("GitSignsLazyLoad", { clear = true }),
         callback = function()
-          vim.fn.jobstart({"git", "-C", vim.loop.cwd(), "rev-parse"},
-            {
-              on_exit = function(_, return_code)
-                if return_code == 0 then
-                  vim.api.nvim_del_augroup_by_name "GitSignsLazyLoad"
-                  vim.schedule(function()
-                    require("lazy").load { plugins = { "gitsigns.nvim" } }
-                  end)
-                end
+          vim.fn.jobstart({ "git", "-C", vim.loop.cwd(), "rev-parse" }, {
+            on_exit = function(_, return_code)
+              if return_code == 0 then
+                vim.api.nvim_del_augroup_by_name "GitSignsLazyLoad"
+                vim.schedule(function()
+                  require("lazy").load { plugins = { "gitsigns.nvim" } }
+                end)
               end
-            }
-          )
+            end,
+          })
         end,
       })
     end,
@@ -145,6 +143,24 @@ local default_plugins = {
     init = function()
       require("core.utils").lazy_load "nvim-lspconfig"
     end,
+    opts = {
+      servers = {
+        tsserver = {
+          keys = {
+            { "<leader>co", "<cmd>TypescriptOrganizeImports<CR>", desc = "Organize Imports" },
+            { "<leader>cR", "<cmd>TypescriptRenameFile<CR>", desc = "Rename File" },
+          },
+        },
+      },
+    },
+    dependencies = {
+      {
+        "jose-elias-alvarez/null-ls.nvim",
+        config = function()
+          require "custom.configs.null-ls"
+        end,
+      },
+    },
     config = function()
       require "plugins.configs.lspconfig"
     end,
@@ -234,7 +250,11 @@ local default_plugins = {
 
   {
     "nvim-telescope/telescope.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter", { "nvim-telescope/telescope-fzf-native.nvim", build = "make" } },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      "nvim-telescope/telescope-file-browser.nvim",
+    },
     cmd = "Telescope",
     init = function()
       require("core.utils").load_mappings "telescope"
@@ -267,6 +287,30 @@ local default_plugins = {
       require("which-key").setup(opts)
     end,
   },
+
+  {
+    "folke/noice.nvim",
+    opts = function()
+      return require "plugins.configs.noice"
+    end,
+  },
+
+  {
+    "rcarriga/nvim-notify",
+    opts = function()
+      return require "plugins.configs.nvim_notify"
+    end,
+  },
+
+  {
+    "max397574/better-escape.nvim",
+    event = "InsertEnter",
+    config = function()
+      require("better_escape").setup()
+    end,
+  },
+  "ThePrimeagen/vim-be-good",
+  "MunifTanjim/nui.nvim",
 }
 
 local config = require("core.utils").load_config()
