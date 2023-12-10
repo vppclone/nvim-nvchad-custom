@@ -290,6 +290,7 @@ local default_plugins = {
 
   {
     "folke/noice.nvim",
+    lazy = false,
     opts = function()
       return require "plugins.configs.noice"
     end,
@@ -297,6 +298,7 @@ local default_plugins = {
 
   {
     "rcarriga/nvim-notify",
+    lazy = false,
     opts = function()
       return require "plugins.configs.nvim_notify"
     end,
