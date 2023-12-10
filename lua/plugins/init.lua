@@ -157,7 +157,7 @@ local default_plugins = {
       {
         "jose-elias-alvarez/null-ls.nvim",
         config = function()
-          require "custom.configs.null-ls"
+          require "plugins.configs.null_ls"
         end,
       },
     },
